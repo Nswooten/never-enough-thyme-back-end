@@ -9,7 +9,7 @@ const formData = require('express-form-data')
 const profilesRouter = require('./routes/profiles.js')
 const authRouter = require('./routes/auth.js')
 const gardenBedsRouter = require('./routes/gardenBeds.js')
-
+const seedsRouter = require('./routes/seeds.js')
 // create the express app
 const app = express()
 
@@ -23,6 +23,7 @@ app.use(formData.parse())
 app.use('/api/profiles', profilesRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/gardenBeds', gardenBedsRouter)
+app.use('/api/seeds', seedsRouter)
 
 // handle 404 errors
 app.use(function (req, res, next) {
