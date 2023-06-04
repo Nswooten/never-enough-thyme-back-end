@@ -10,5 +10,7 @@ const { decodeUserFromToken, checkAuth } = middleware
 /*---------- Protected Routes ----------*/
 router.use(decodeUserFromToken)
 router.post("/", checkAuth, seedsCtrl.create )
+router.get("/", checkAuth, seedsCtrl.index)
+router.get("/:seedId", checkAuth, seedsCtrl.show)
 
 module.exports = router
