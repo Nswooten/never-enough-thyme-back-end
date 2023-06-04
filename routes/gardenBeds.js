@@ -13,5 +13,10 @@ router.post("/", checkAuth, gardenBedsCtrl.create )
 router.get("/", checkAuth, gardenBedsCtrl.index)
 router.get("/:gardenBedId", checkAuth, gardenBedsCtrl.show)
 router.post("/:gardenBedId/seeds/:seedId", gardenBedsCtrl.associateSeed)
+router.delete('/:gardenBedId', checkAuth, gardenBedsCtrl.deleteGardenBed)
+router.put('/:gardenBedId', checkAuth, gardenBedsCtrl.updateGardenBed)
+router.delete('/:gardenBedId/seeds/:seedId', checkAuth, gardenBedsCtrl.deleteSeedAssociation)
+
+
 
 module.exports = router
