@@ -12,5 +12,6 @@ router.use(decodeUserFromToken)
 router.post("/", checkAuth, gardenBedsCtrl.create )
 router.get("/", checkAuth, gardenBedsCtrl.index)
 router.get("/:gardenBedId", checkAuth, gardenBedsCtrl.show)
+router.post("/:gardenBedId/seeds/:seedId", gardenBedsCtrl.associateSeed)
 
 module.exports = router

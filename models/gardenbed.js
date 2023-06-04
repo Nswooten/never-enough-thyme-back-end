@@ -11,6 +11,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       GardenBed.belongsTo(models.Profile, { foreignKey: "profileId"})
+      GardenBed.belongsToMany(models.Seed, {
+        as: "seeds",
+        through: models.GardenBedSeed,
+        foreignKey: "gardenBedId"
+      })
     }
   }
   GardenBed.init({

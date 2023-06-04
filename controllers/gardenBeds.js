@@ -1,4 +1,4 @@
-const { GardenBed } = require('../models')
+const { GardenBed, Seed, GardenBedSeed } = require('../models')
 
 async function create(req, res){
   try{
@@ -12,7 +12,11 @@ async function create(req, res){
 
 async function index(req, res) {
   try {
-    const gardenBeds = await GardenBed.findAll()
+    const gardenBeds = await GardenBed.findAll({
+      include: [
+        { model: Seed, as: "seeds", through: { attributes: [] } }
+      ]
+    })
     res.json(gardenBeds)
   } catch (err) {
     console.log(err)
@@ -22,7 +26,12 @@ async function index(req, res) {
 
 async function show(req, res) {
   try {
-    const gardenBed = await GardenBed.findByPk(req.params.gardenBedId)
+    const gardenBed = await GardenBed.findOne({
+      where: {
+        id: req.params.gardenBedId
+      },
+      include: [{ model: Seed, as: "seeds", through: { attributes: [] } }],
+    })
     res.json(gardenBed)
   } catch (err) {
     console.log(err)
@@ -30,10 +39,24 @@ async function show(req, res) {
   }
 }
 
+async function associateSeed(req, res) {
+  try {
+    const { gardenBedId, seedId } = req.params
+    const association = await GardenBedSeed.create({
+      gardenBedId: gardenBedId,
+      seedId: seedId
+    })
+    res.status(200).json(association)
+  } catch (err) {
+    console.log(err)
+    res.status(500).json(err)
+  }
+}
 
 
 module.exports = {
   create,
   index,
-  show
+  show,
+  associateSeed
 }
