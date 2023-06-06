@@ -30,23 +30,55 @@ async function show(req, res) {
       where: {
         id: req.params.gardenBedId
       },
-      include: [{ model: Seed, as: "seeds", through: { attributes: [] } }],
+      include: [{
+        model: Seed,
+        as: "seeds",
+        through: {
+          attributes: ['qty']
+        }
+      }]
     })
-    res.json(gardenBed)
+    const modifiedGardenBed = {
+      ...gardenBed.toJSON(),
+      seeds: []
+    }
+    gardenBed.seeds.forEach((seed) => {
+      const qty = seed.GardenBedSeed.qty
+      const modifiedSeed = { ...seed.toJSON() }
+      delete modifiedSeed.GardenBedSeed
+      for (let i = 0; i < qty; i++) {
+        modifiedGardenBed.seeds.push(modifiedSeed)
+      }
+    })
+    res.json(modifiedGardenBed)
   } catch (err) {
-    console.log(err)
+    console.error(err)
     res.status(500).json(err)
   }
 }
 
+
 async function associateSeed(req, res) {
   try {
     const { gardenBedId, seedId } = req.params
-    const association = await GardenBedSeed.create({
-      gardenBedId: gardenBedId,
-      seedId: seedId
+    const currentAssociation = await GardenBedSeed.findOne({
+      where: { 
+        gardenBedId: gardenBedId,
+        seedId: seedId
+      }
     })
-    res.status(200).json(association)
+    if(currentAssociation){
+      currentAssociation.qty = currentAssociation.qty + 1
+      await currentAssociation.save()
+      res.status(200).json(currentAssociation)
+    }else{
+      const association = await GardenBedSeed.create({
+        gardenBedId: gardenBedId,
+        seedId: seedId,
+        qty: 1
+      })
+      res.status(200).json(association)
+    }
   } catch (err) {
     console.log(err)
     res.status(500).json(err)
@@ -95,18 +127,23 @@ async function deleteSeedAssociation(req, res) {
         seedId: seedId
       }
     })
-    const rowsRemoved = await GardenBedSeed.destroy({
-      where: { 
-        gardenBedId: gardenBedId,
-        seedId: seedId
-      }
-    })
-    res.status(200).json({rowsRemoved: rowsRemoved, destroyedAssociation: association})
+    association.qty = association.qty - 1
+    await association.save()
+    if(association.qty === 0){
+      const rowsRemoved = await GardenBedSeed.destroy({
+        where: { 
+          gardenBedId: gardenBedId,
+          seedId: seedId
+        }
+      })
+      res.status(200).json({rowsRemoved: rowsRemoved, destroyedAssociation: association})
+    }else{
+      res.status(200).json(association)
+    }
   } catch (err) {
     console.log(err)
     res.status(500).json(err)
   }
 }
-
 
 module.exports = { create, index, show, associateSeed, deleteGardenBed, updateGardenBed, deleteSeedAssociation }
