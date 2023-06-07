@@ -61,6 +61,7 @@ async function show(req, res) {
 async function associateSeed(req, res) {
   try {
     const { gardenBedId, seedId } = req.params
+    const seedToBeAdded = await Seed.findByPk(req.params.seedId)
     const currentAssociation = await GardenBedSeed.findOne({
       where: { 
         gardenBedId: gardenBedId,
@@ -70,14 +71,14 @@ async function associateSeed(req, res) {
     if(currentAssociation){
       currentAssociation.qty = currentAssociation.qty + 1
       await currentAssociation.save()
-      res.status(200).json(currentAssociation)
+      res.status(200).json({currentAssociation, seed: seedToBeAdded})
     }else{
       const association = await GardenBedSeed.create({
         gardenBedId: gardenBedId,
         seedId: seedId,
         qty: 1
       })
-      res.status(200).json(association)
+      res.status(200).json({association, seed: seedToBeAdded})
     }
   } catch (err) {
     console.log(err)
@@ -121,6 +122,7 @@ async function updateGardenBed(req, res) {
 async function deleteSeedAssociation(req, res) {
   try {
     const { gardenBedId, seedId } = req.params
+    const seedToBeDeleted = await Seed.findByPk(req.params.seedId)
     const association = await GardenBedSeed.findOne({
       where: { 
         gardenBedId: gardenBedId,
@@ -136,9 +138,9 @@ async function deleteSeedAssociation(req, res) {
           seedId: seedId
         }
       })
-      res.status(200).json({rowsRemoved: rowsRemoved, destroyedAssociation: association})
+      res.status(200).json({rowsRemoved: rowsRemoved, destroyedAssociation: association, seed: seedToBeDeleted})
     }else{
-      res.status(200).json(association)
+      res.status(200).json({association, seed: seedToBeDeleted})
     }
   } catch (err) {
     console.log(err)
