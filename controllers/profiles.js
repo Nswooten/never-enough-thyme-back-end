@@ -16,13 +16,11 @@ async function addPhoto(req, res) {
   try {
     const imageFile = req.files.photo.path
     const profile = await Profile.findByPk(req.params.id)
-    
     const image = await cloudinary.uploader.upload(
-      imageFile, 
+      imageFile,
       { tags: `${req.user.email}` }
     )
     profile.photo = image.url
-
     await profile.save()
     res.status(201).json(profile.photo)
   } catch (err) {
@@ -37,7 +35,7 @@ async function show(req, res) {
       where: {
         id: req.params.profileId
       },
-      include: [{ model: GardenBed, as: "gardenBeds"}],
+      include: [{ model: GardenBed, as: "gardenBeds" }],
     })
     res.json(profile)
   } catch (err) {
